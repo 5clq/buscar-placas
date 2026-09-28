@@ -1,0 +1,334 @@
+================================================================================
+  BUSCAR PLACAS EM VIDEOS - COMO USAR
+  Tutorial passo a passo
+================================================================================
+
+
+1. O QUE ESTE SCRIPT FAZ
+--------------------------------------------------------------------------------
+Le as placas de uma planilha do Google Sheets, procura cada placa no NOME dos
+videos e copia os videos encontrados para pastas separadas por placa.
+
+  Google Sheets   ->  le todas as placas
+  Pasta de videos ->  procura cada placa no nome dos arquivos
+  Encontrou?      ->  copia o video
+
+Exemplo do resultado:
+
+  RESULTADOS
+     |  ABC1234
+     |     |  FIAT STRADA-ABC-1234 - STORY.mp4
+     |     |  onix-abc1234-manha-2.mov
+     |     |  ONIX-ABC-1234 (1).avi
+     |  ABC1D23
+     |     |  FIAT STRADA ABC 1D23.mp4
+     |  DEF4G56
+     |     |  ZZZZ-DEF4G56-fim.mp4
+
+O que o script NAO faz: ele nao assiste ao video e nao le a placa que aparece
+dentro da imagem. A placa precisa estar escrita no NOME DO ARQUIVO.
+
+Junto com os videos copiados, o script cria 2 relatorios na pasta de destino:
+  relatorio.txt  - resumo legivel
+  relatorio.csv  - para abrir e filtrar no Excel
+
+
+2. ONDE FICAM AS COISAS NESTE COMPUTADOR
+--------------------------------------------------------------------------------
+Pasta do script (onde estes arquivos estao):
+
+  C:\Users\Pax Primavera\Desktop\buscar-placas-main\buscar-placas-main
+
+Pasta dos videos (no servidor - nao muda nunca):
+
+  \\SERVIDOR-MARKETING\servidor - 2024\SERVIDOR MKT GRANDOURADOS\00 - SEMINOVOS
+
+Pasta onde os videos serao copiados:
+
+  C:\Users\Pax Primavera\Desktop\RESULTADOS
+
+
+3. PASSO 1 - ABRIR O TERMINAL NA PASTA CERTA
+--------------------------------------------------------------------------------
+Voce precisa de uma janela de PowerShell ABERTA DENTRO da pasta do script.
+
+Jeito mais facil:
+  1. Abra o Explorer
+  2. Clique na barra de endereco (em cima) e cole:
+
+     C:\Users\Pax Primavera\Desktop\buscar-placas-main\buscar-placas-main
+
+  3. Aperte Enter
+  4. Clique em branco na pasta e depois na barra de endereco de novo
+  5. Escreva "powershell" e aperte Enter
+
+Jeito alternativo: abra o PowerShell e digite (com as aspas, obrigatorio porque
+o caminho tem espaco no nome do usuario):
+
+  cd "C:\Users\Pax Primavera\Desktop\buscar-placas-main\buscar-placas-main"
+
+Para conferir se deu certo, o terminal deve mostrar o caminho na primeira linha,
+logo depois de "PS".
+
+  >> As aspas importam. "Pax Primavera" tem espaco. Sem as aspas o comando
+     quebra e da erro.
+
+
+4. PASSO 2 - VERIFICAR/INSTALAR O PYTHON
+--------------------------------------------------------------------------------
+Digite no terminal:
+
+  python --version
+
+Se aparecer algo como "Python 3.12.10", pode pular para o PASSO 3.
+
+Se der ERRO ("python nao foi encontrado" ou "nao e reconhecido como nome de um
+comando"), instale com este comando:
+
+  winget install Python.Python.3.12
+
+IMPORTANTE: depois de instalar, FECHE o PowerShell e ABRA OUTRO. Sem isso o
+terminal nao reconhece o Python.
+
+
+5. PASSO 3 - TESTAR O SCRIPT (NAO USA NADA SEU)
+--------------------------------------------------------------------------------
+Digite:
+
+  python testar_sem_planilha.py
+
+Esse teste cria uma pasta de video ficticia na pasta temporaria do Windows e
+roda a busca inteira. Nao usa internet, nao usa a planilha e nao mexe nos seus
+videos.
+
+Se no final aparecer:
+
+  TUDO OK - o script funciona nesta maquina.
+
+esta tudo certo. Pule para o PASSO 4.
+
+Se aparecer FALHOU, me envie o texto da tela. O problema e o Python, nao o
+servidor.
+
+
+6. PASSO 4 - CRIAR O ARQUIVO config.py
+--------------------------------------------------------------------------------
+ATENCAO: este passo e obrigatorio e costuma ser o que trava tudo.
+
+O arquivo config.py NAO veio junto, de proposito: e nele que fica o link da sua
+planilha, e de proposito ele nao vai para o GitHub.
+
+No terminal, dentro da pasta do script, digite:
+
+  copy config.exemplo.py config.py
+
+Depois abra o arquivo para editar:
+
+  notepad config.py
+
+Voce vera que neste arquivo so 3 linhas importam. Troque os valores:
+
+  URL_PLANILHA = "COLE_AQUI_O_LINK_DA_PLANILHA"
+  PASTA_VIDEOS = r"C:\Users\Administrator\Videos\buscar"
+  PASTA_RESULTADOS = r"C:\Users\Administrator\Videos\RESULTADOS"
+
+Ficam assim (copie e cole a partir do sinal de igual):
+
+  URL_PLANILHA = "https://docs.google.com/spreadsheets/d/SEU_ID_AQUI/edit#gid=0"
+  PASTA_VIDEOS = r"\\SERVIDOR-MARKETING\servidor - 2024\SERVIDOR MKT GRANDOURADOS\00 - SEMINOVOS"
+  PASTA_RESULTADOS = r"C:\Users\Pax Primavera\Desktop\RESULTADOS"
+
+  6a) PARA PEGAR O LINK DA PLANILHA:
+      Abra a planilha no Chrome. Na barra de endereco, copie o link inteiro.
+      Ele tem o formato:
+      https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOp/edit#gid=0
+      Cole no lugar de SEU_ID_AQUI. Pode colar o link inteiro, o script aceita.
+
+      IMPORTANTE: a planilha precisa estar compartilhada. No Google Sheets, clique
+      em "Compartilhar" > "Acesso para: Qualquer pessoa com o link" > "Leitor".
+      Se voce so coautor, o script nao consegue ler.
+
+  6b) DETALHE IMPORTANTE DO PASTA_VIDEOS:
+      O "r" antes das aspas e obrigatorio. E o caminho tem que comecar com
+      DUAS barras invertidas:  \\servidor\pasta
+      Uma barra so seria o caminho do outro lado, do seu PC.
+
+  6c) Depois de editar, salve com Ctrl+S e feche o Bloco de Notas.
+
+
+7. PASSO 5 - CONFERIR O SERVIDOR E O NOME DOS ARQUIVOS
+--------------------------------------------------------------------------------
+Antes de rodar o script inteiro, confira 2 coisas.
+
+7a) O SERVIDOR ABRE?
+
+      No Explorer, cole na barra de endereco:
+
+      \\SERVIDOR-MARKETING\servidor - 2024\SERVIDOR MKT GRANDOURADOS\00 - SEMINOVOS
+
+      Se abrir e mostrar as pastas de video, o script consegue ler.
+
+      Se der erro, provavelmente precisa de senha. No PowerShell:
+
+      net use "\\SERVIDOR-MARKETING\servidor - 2024" /user:SEU_USUARIO
+
+      Troque SEU_USUARIO pelo seu login de rede. Rode este comando com o
+      PowerShell ABERTO NA MESMA SESSAO em que vai rodar o script.
+
+7b) O NOME DOS VIDEOS TEM A PLACA?
+
+      Este e o ponto mais importante. O script procura a placa no NOME DO
+      ARQUIVO. Se os videos se chamam "2024-05-12_14h30.mp4", o script nao
+      encontra NADA, porque nao existe placa escrita nesse nome.
+
+      Para ver como os seus videos se chamam, digite no PowerShell:
+
+      Get-ChildItem "\\SERVIDOR-MARKETING\servidor - 2024\SERVIDOR MKT GRANDOURADOS\00 - SEMINOVOS" -Recurse -File | Select-Object -First 15 -ExpandProperty Name
+
+      Vai aparecer uma lista de nomes. Olhe se a placa esta escrita neles:
+
+        BOM  ->  "FIAT STRADA-ABC-1234 - STORY.mp4"
+        BOM  ->  "onix abc1234 manha.mp4"
+        BOM  ->  "ABC-1234_video15.mp4"
+        RUIM ->  "2024-05-12_14h30.mp4"      (nao tem placa, nao acha)
+        RUIM ->  "video_sem_nome.mp4"         (nao tem placa, nao acha)
+
+      Se nenhum dos seus nomes tem placa escrita, o script nao tem como
+      encontrar. Nesse caso me avise, que a solucao muda.
+
+
+8. PASSO 6 - RODAR EM MODO SIMULACAO (NAO COPIA NADA)
+--------------------------------------------------------------------------------
+  python buscar_placas.py --simular
+
+Este comando NAO copia nenhum video e NAO cria a pasta de destino. Ele so
+mostra o que seria copiado. E o passo que evita voce criar centenas de pastas
+erradas.
+
+O que olhar na saida:
+
+  - "Placas na planilha:  N"  -> quantas placas ele leu
+  - a lista com [SIMULA]      -> quais videos casaram com quais placas
+  - "Nao encontradas"         -> quais placas da planilha nao tem video
+
+Se a lista de [SIMULA] estiver com os videos que voce espera, siga para o
+PASSO 7.
+
+Se nao tiver NENHUM video na lista, reveja o item 7b (nome dos arquivos).
+
+
+9. PASSO 7 - RODAR DE VERDADE
+--------------------------------------------------------------------------------
+Confirmou que a simulacao esta certa? Entao rode:
+
+  python buscar_placas.py
+
+O terminal vai mostrar, video por video:
+
+  [OK] FIAT STRADA-ABC-1234 - STORY.mp4 (37.0 MB)  ->  ABC1234\FIAT...
+
+O "(37.0 MB)" e o tamanho do arquivo. Em video grande este passo demora - e
+normal, e o script vai mostrando o que ja copiou.
+
+Pode deixar rodando. Se precisar interromper, aperte Ctrl+C. Nao estraga nada:
+o que ja foi copiado continua la, e na proxima vez ele pula o que ja existe.
+
+
+10. O QUE CONFERIR DEPOIS
+--------------------------------------------------------------------------------
+Na pasta C:\Users\Pax Primavera\Desktop\RESULTADOS:
+
+  - Pastas com nome de placa (ABC1234, DEF4G56...) contendo os videos
+  - relatorio.txt  e  relatorio.csv
+
+O MAIS UTIL: o relatorio.txt mostra, no final, a lista de PLACAS QUE NAO
+TIVERAM VIDEO. Essa e a resposta para a pergunta que importa:
+
+  "qual placa da planilha nao tem video na pasta?"
+
+Abra com:
+
+  notepad "C:\Users\Pax Primavera\Desktop\RESULTADOS\relatorio.txt"
+
+
+11. RODAR DE NOVO (ATUALIZOU A PLANILHA)
+--------------------------------------------------------------------------------
+Pode rodar o script quantas vezes quiser. Ele NAO duplica arquivos: na segunda
+vez ele pula o que ja foi copiado e so copia o que e novo.
+
+Se voce corrigiu o nome de algum video ou apagou algum destino, e quer recomecar
+do zero, apague a pasta RESULTADOS e rode de novo.
+
+
+12. PROBLEMAS COMUNS
+--------------------------------------------------------------------------------
+MENSAGEM                                      O QUE FAZER
+--------------------------------------------------------------------------------
+Python nao foi encontrado                     Instale (PASSO 2) e abra outro terminal
+config.py nao encontrado                     Rode: copy config.exemplo.py config.py
+A planilha recusou o acesso (401/403)         Compartilhe como "Leitor"
+O Google devolveu uma pagina HTML            A planilha esta privada, compartilhe
+Nenhuma placa foi reconhecida                A coluna da planilha esta diferente.
+                                              Use: python buscar_placas.py --simular --coluna 0
+                                              (0 = primeira coluna, 1 = segunda...)
+A planilha esta vazia                        O link aponta para uma aba vazia.
+                                              Copie o link da aba que tem as placas
+Nao consegui acessar o compartilhamento      O share esta fora do ar ou falta senha.
+                                              Use o comando net use (item 7a)
+Nenhum arquivo de video encontrado           Confira o PASSO 5b (nome dos arquivos)
+Nao encontrou nenhum video                    Normalmente e o item 7b: os nomes dos
+                                              arquivos nao tem a placa escrita
+Ja existe no destino (marcado com [!])        Normal. Rodar de novo nao duplica
+Path not found / caminho muito longo          A pasta dentro do servidor e muito
+                                              profunda. Mova o destino para disco local
+Placa copiada para a pasta errada             Rode com --simular e confira antes
+
+
+13. COMANDOS UTEIS
+--------------------------------------------------------------------------------
+Testar sem copiar nada (sempre antes de rodar de verdade):
+
+  python buscar_placas.py --simular
+
+Reprocessar, sobrescrevendo o que ja estava no destino:
+
+  python buscar_placas.py --sobrescrever
+
+Forcar a coluna das placas (0 = A, 1 = B, 2 = C):
+
+  python buscar_placas.py --simular --coluna 0
+
+Ver o log detalhado, incluindo os videos ignorados:
+
+  python buscar_placas.py --simular --debug
+
+Usar outra pasta de videos, sem mexer no config.py:
+
+  python buscar_placas.py --simular --videos "\\SERVIDOR-MARKETING\servidor - 2024\SERVIDOR MKT GRANDOURADOS\00 - SEMINOVOS"
+
+
+14. COMO ATUALIZAR O SCRIPT
+--------------------------------------------------------------------------------
+Voce baixou o codigo em ZIP do GitHub, entao NAO da para atualizar com
+"git pull".
+
+Quando eu corrigir alguma coisa, e so baixar o ZIP de novo em:
+
+  https://github.com/5clq/buscar-placas
+
+Cuidado: ao baixar de novo, faca backup do seu config.py antes:
+
+  copy config.py config.py.bak
+
+
+================================================================================
+  RESUMO RAPIDO (depois de tudo configurado)
+================================================================================
+
+  1. Abrir PowerShell na pasta do script
+  2. copy config.exemplo.py config.py     (so na primeira vez)
+  3. notepad config.py                     (preencher as 3 linhas)
+  4. python buscar_placas.py --simular    (conferir)
+  5. python buscar_placas.py              (copiar de verdade)
+
+================================================================================
