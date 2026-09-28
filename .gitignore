@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ---------------------------------------------------------------------------
+# Configuracao local  (NAO versionar)
+# ---------------------------------------------------------------------------
+# O config.py tem o link da sua planilha e os caminhos das suas pastas.
+# Quem tem o link da planilha acesso a planilha, entao ele nao vai para o git.
+# Copie o exemplo uma vez:   copy config.exemplo.py config.py
+config.py
+
+# ---------------------------------------------------------------------------
+# Resultados e dados locais
+# ---------------------------------------------------------------------------
+RESULTADOS/
+resultados/
+out/
+*.csv
+!placas_exemplo.csv
+relatorio.txt
+relatorio.csv
+
+# ---------------------------------------------------------------------------
+# Editores e sistema
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/

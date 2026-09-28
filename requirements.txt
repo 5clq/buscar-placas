@@ -1,0 +1,5 @@
+# O script usa apenas a biblioteca padrão do Python 3.8+.
+# Nenhuma dependência externa é necessária.
+#
+# Se futuramente quiser ler planilhas privadas via service account:
+#   pip install gspread google-auth

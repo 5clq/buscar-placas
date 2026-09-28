@@ -1,0 +1,9 @@
+# Normaliza finais de linha para LF no repositório.
+# O Python não liga para isso, mas evita o aviso "LF will be replaced by CRLF"
+# e mantém o diff limpo entre Windows e Linux/macOS.
+* text=auto eol=lf
+
+# Arquivos de texto que o Windows abre como CRLF de propósito
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
